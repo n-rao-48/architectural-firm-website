@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import { getCloudinaryConfigStatus } from './config/cloudinary.js';
 import connectDB from './config/db.js';
+import { getStartupConfigStatus, validateEnvironment } from './config/envValidation.js';
 
 import { getInquiries } from './controllers/emailController.js';
 
@@ -15,68 +16,8 @@ import projectRoutes from './routes/projectRoutes.js';
 dotenv.config();
 
 const app = express();
-const port = Number(process.env.PORT || 5000);
-
-function getFirstSetEnvName(names) {
-  for (const name of names) {
-    if ((process.env[name] || '').trim()) {
-      return name;
-    }
-  }
-  return null;
-}
-
-function buildStartupCheckStatus() {
-  const mongoEnvNames = ['MONGO_URI', 'MONGODB_URI', 'DATABASE_URL'];
-  const mongoEnvSource = getFirstSetEnvName(mongoEnvNames);
-  const mongoUri = mongoEnvSource ? (process.env[mongoEnvSource] || '').trim() : '';
-  const mongoPresent = Boolean(mongoUri);
-  const mongoSchemeValid = mongoUri.startsWith('mongodb://') || mongoUri.startsWith('mongodb+srv://');
-  const mongoLooksMalformed = mongoUri.includes('mailto:') || mongoUri.includes('%[');
-
-  const smtpUser = (process.env.SMTP_USER || '').trim();
-  const smtpPass = (process.env.SMTP_PASS || '').trim();
-  const smtpService = (process.env.SMTP_SERVICE || 'gmail').trim().toLowerCase();
-
-  const cloudinary = getCloudinaryConfigStatus();
-  const missingRequiredEnv = getRequiredMissingEnv();
-
-  const mongoConfigured = mongoPresent && mongoSchemeValid && !mongoLooksMalformed;
-  const smtpConfigured = Boolean(smtpUser && smtpPass);
-  const cloudinaryConfigured = Boolean(cloudinary.configured);
-
-  const overallHealthy = missingRequiredEnv.length === 0 && mongoConfigured;
-
-  return {
-    status: overallHealthy ? 'ok' : 'degraded',
-    timestamp: new Date().toISOString(),
-    runtime: {
-      nodeVersion: process.version,
-      environment: process.env.NODE_ENV || 'development',
-      uptimeSeconds: Math.floor(process.uptime()),
-    },
-    checks: {
-      requiredEnv: {
-        ok: missingRequiredEnv.length === 0,
-        missing: missingRequiredEnv,
-      },
-      mongo: {
-        configured: mongoConfigured,
-        envSource: mongoEnvSource,
-        present: mongoPresent,
-        schemeValid: mongoPresent ? mongoSchemeValid : null,
-        malformed: mongoPresent ? mongoLooksMalformed : null,
-      },
-      cloudinary: {
-        configured: cloudinaryConfigured,
-      },
-      smtp: {
-        configured: smtpConfigured,
-        service: smtpService,
-      },
-    },
-  };
-}
+const parsedPort = Number.parseInt(process.env.PORT || '5000', 10);
+const port = Number.isInteger(parsedPort) && parsedPort > 0 ? parsedPort : 5000;
 
 function logFatal(label, error) {
   console.error(`FATAL: ${label}`);
@@ -87,39 +28,25 @@ function logFatal(label, error) {
   }
 }
 
-function getRequiredMissingEnv() {
-  const required = ['JWT_SECRET'];
-  return required.filter((name) => !(process.env[name] || '').trim());
-}
+function logStartupValidation() {
+  const report = validateEnvironment();
 
-function validateStartupConfig() {
-  const missing = getRequiredMissingEnv();
-  if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  if (report.warnings.length > 0) {
+    for (const warning of report.warnings) {
+      console.warn(`WARN: ${warning}`);
+    }
   }
 
-  const mongoUri = (
-    process.env.MONGO_URI ||
-    process.env.MONGODB_URI ||
-    process.env.DATABASE_URL ||
-    ''
-  ).trim();
-
-  if (!mongoUri) {
-    throw new Error('Missing MongoDB URI. Set MONGO_URI (or MONGODB_URI / DATABASE_URL).');
-  }
-
-  if (mongoUri.includes('mailto:') || mongoUri.includes('%[')) {
-    throw new Error(
-      'MongoDB URI appears malformed (possibly copied from markdown). Check URI encoding and remove markdown artifacts.',
-    );
+  if (!report.ok) {
+    for (const error of report.errors) {
+      console.error(`ERROR: ${error}`);
+    }
+    throw new Error('Environment validation failed. Check startup logs above.');
   }
 
   const cloudinary = getCloudinaryConfigStatus();
   if (!cloudinary.configured) {
-    console.warn(
-      'Cloudinary is not fully configured. Upload routes will return clear errors until vars are set.',
-    );
+    console.warn('WARN: Cloudinary upload features are disabled until env vars are configured.');
   }
 }
 
@@ -200,7 +127,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.get('/api/startup-check', (_req, res) => {
-  const startupStatus = buildStartupCheckStatus();
+  const startupStatus = getStartupConfigStatus();
   const statusCode = startupStatus.status === 'ok' ? 200 : 503;
   res.status(statusCode).json(startupStatus);
 });
@@ -242,11 +169,16 @@ app.use((error, _req, res, _next) => {
 // =========================
 async function startServer() {
   try {
-    validateStartupConfig();
+    logStartupValidation();
     await connectDB();
 
-    app.listen(port, () => {
+    const server = app.listen(port, () => {
       console.log(`Backend API running on port ${port}`);
+    });
+
+    server.on('error', (error) => {
+      logFatal('HTTP server listen error', error);
+      process.exit(1);
     });
   } catch (error) {
     logFatal('Failed to start server', error);
