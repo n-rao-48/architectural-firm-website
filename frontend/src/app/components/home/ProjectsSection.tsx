@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { useProjects } from '../../lib/useProjects';
 
 export function ProjectsSection() {
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | number | null>(null);
   const { projects: allProjects } = useProjects();
   const projects = allProjects.slice(0, 4).map((project) => ({
     id: project.id,

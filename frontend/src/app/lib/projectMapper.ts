@@ -1,5 +1,5 @@
 import type { Project, ProjectCategory, ProjectCity, ProjectStatus } from '../data/projectsData';
-import type { ProjectRecord } from './api';
+import { getProjectRecordId, type ProjectRecord } from './api';
 
 const validCategories: ProjectCategory[] = ['Residential', 'Commercial', 'Interior'];
 const validCities: ProjectCity[] = ['pune', 'nashik', 'ahilyanagar', 'sambhajinagar'];
@@ -33,9 +33,11 @@ export function mapApiProjectToUi(project: ProjectRecord): Project {
   const createdDate = project.created_at ? new Date(project.created_at) : new Date();
   const fallbackYear = Number.isNaN(createdDate.getTime()) ? String(new Date().getFullYear()) : String(createdDate.getFullYear());
   const year = project.project_year?.trim() || fallbackYear;
+  const fallbackIdSeed = `${project.name}-${project.location}-${year}`.toLowerCase().replace(/\s+/g, '-');
+  const projectId = getProjectRecordId(project) || fallbackIdSeed;
 
   return {
-    id: project.id,
+    id: projectId,
     title: project.name,
     category: normalizeCategory(project.type),
     city: normalizeCity(project.city, project.location),

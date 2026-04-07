@@ -3,7 +3,7 @@ export type ProjectCity = 'pune' | 'nashik' | 'ahilyanagar' | 'sambhajinagar';
 export type ProjectStatus = 'completed' | 'ongoing';
 
 export interface Project {
-  id: number;
+  id: string | number;
   title: string;
   category: ProjectCategory;
   city: ProjectCity;

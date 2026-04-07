@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { useAuth } from '../../contexts/AuthContext';
-import { deleteProject, fetchProjects, type ProjectRecord } from '../../lib/api';
+import { deleteProject, fetchProjects, getProjectRecordId, type ProjectRecord } from '../../lib/api';
 
 export default function ManageProjectsPage() {
   const { token } = useAuth();
@@ -33,7 +33,7 @@ export default function ManageProjectsPage() {
     loadProjects();
   }, []);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!token) {
       setError('Unauthorized. Please login again.');
       return;
@@ -109,8 +109,12 @@ export default function ManageProjectsPage() {
                 </td>
               </tr>
             ) : (
-              filteredProjects.map((project) => (
-                <tr key={project.id} className="border-b border-[#F5F5F5]">
+              filteredProjects.map((project, index) => {
+                const projectId = getProjectRecordId(project);
+                const rowKey = projectId || `${project.name}-${project.created_at || index}`;
+
+                return (
+                <tr key={rowKey} className="border-b border-[#F5F5F5]">
                   <td className="px-4 py-3" style={{ fontSize: '0.95rem', fontWeight: 400 }}>{project.name}</td>
                   <td className="px-4 py-3" style={{ fontSize: '0.95rem', fontWeight: 400 }}>{project.type}</td>
                   <td className="px-4 py-3" style={{ fontSize: '0.95rem', fontWeight: 400 }}>
@@ -119,24 +123,38 @@ export default function ManageProjectsPage() {
                   <td className="px-4 py-3" style={{ fontSize: '0.95rem', fontWeight: 400 }}>{project.city || '-'}</td>
                   <td className="px-4 py-3" style={{ fontSize: '0.95rem', fontWeight: 400 }}>{project.location}</td>
                   <td className="px-4 py-3 flex items-center gap-3">
-                    <Link
-                      to={`/admin/edit-project/${project.id}`}
-                      className="text-[#2B2B2B] hover:text-[#f3e218]"
-                      style={{ fontSize: '0.9rem', fontWeight: 400 }}
-                    >
-                      Edit
-                    </Link>
+                    {projectId ? (
+                      <Link
+                        to={`/admin/edit-project/${projectId}`}
+                        className="text-[#2B2B2B] hover:text-[#f3e218]"
+                        style={{ fontSize: '0.9rem', fontWeight: 400 }}
+                      >
+                        Edit
+                      </Link>
+                    ) : (
+                      <span className="text-[#9B9B9B]" style={{ fontSize: '0.9rem', fontWeight: 400 }}>
+                        Edit
+                      </span>
+                    )}
                     <button
                       type="button"
-                      onClick={() => handleDelete(project.id)}
+                      onClick={() => {
+                        if (!projectId) {
+                          setError(`Project "${project.name}" is missing an id, so it cannot be deleted.`);
+                          return;
+                        }
+                        handleDelete(projectId);
+                      }}
                       className="text-red-600"
+                      disabled={!projectId}
                       style={{ fontSize: '0.9rem', fontWeight: 400 }}
                     >
                       Delete
                     </button>
                   </td>
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>

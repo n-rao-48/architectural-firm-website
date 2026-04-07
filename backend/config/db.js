@@ -3,7 +3,11 @@ import mongoose from 'mongoose';
 const client = process.env.DATABASE_CLIENT || 'mongodb';
 
 async function connectDB() {
-  const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/architecture_firm';
+  const mongoUri =
+    process.env.MONGO_URI ||
+    process.env.MONGODB_URI ||
+    process.env.DATABASE_URL ||
+    'mongodb://127.0.0.1:27017/architecture_firm';
 
   try {
     await mongoose.connect(mongoUri);

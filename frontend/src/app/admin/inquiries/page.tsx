@@ -6,11 +6,23 @@ import {
     type ClientInquiryRecord,
 } from '../../lib/api';
 
-function formatDate(dateValue?: string) {
+function parseDate(dateValue?: string) {
   if (!dateValue) return '-';
   const date = new Date(dateValue);
   if (Number.isNaN(date.getTime())) return '-';
+  return date;
+}
+
+function formatDateTime(dateValue?: string) {
+  const date = parseDate(dateValue);
+  if (date === '-') return '-';
   return date.toLocaleString();
+}
+
+function formatDateOnly(dateValue?: string) {
+  const date = parseDate(dateValue);
+  if (date === '-') return '-';
+  return date.toLocaleDateString('en-GB');
 }
 
 export default function AdminInquiriesPage() {
@@ -181,7 +193,7 @@ export default function AdminInquiriesPage() {
                     <td className="px-4 py-3" style={{ fontSize: '0.9rem', fontWeight: 400 }}>{inquiry.projectType || '-'}</td>
                     <td className="px-4 py-3 max-w-sm" style={{ fontSize: '0.9rem', fontWeight: 400 }}>{inquiry.message || '-'}</td>
                     <td className="px-4 py-3 whitespace-nowrap" style={{ fontSize: '0.9rem', fontWeight: 400 }}>
-                      {formatDate(inquiry.createdAt)}
+                      {formatDateTime(inquiry.createdAt)}
                     </td>
                   </tr>
                 ))
@@ -272,14 +284,14 @@ export default function AdminInquiriesPage() {
                     <td className="px-4 py-3" style={{ fontSize: '0.9rem', fontWeight: 400 }}>{inquiry.gender || '-'}</td>
                     <td className="px-4 py-3" style={{ fontSize: '0.9rem', fontWeight: 400 }}>{inquiry.age ?? '-'}</td>
                     <td className="px-4 py-3 whitespace-nowrap" style={{ fontSize: '0.9rem', fontWeight: 400 }}>
-                      {formatDate(inquiry.dob)}
+                      {formatDateOnly(inquiry.dob)}
                     </td>
                     <td className="px-4 py-3" style={{ fontSize: '0.9rem', fontWeight: 400 }}>{inquiry.state || '-'}</td>
                     <td className="px-4 py-3 max-w-sm" style={{ fontSize: '0.9rem', fontWeight: 400 }}>
                       {inquiry.skills && inquiry.skills.length > 0 ? inquiry.skills.join(', ') : '-'}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap" style={{ fontSize: '0.9rem', fontWeight: 400 }}>
-                      {formatDate(inquiry.createdAt)}
+                      {formatDateTime(inquiry.createdAt)}
                     </td>
                   </tr>
                 ))

@@ -33,10 +33,19 @@ const allowedOrigins = new Set([
   ...configuredOrigins,
 ]);
 
+function isAllowedVercelPreview(origin) {
+  try {
+    const hostname = new URL(origin).hostname;
+    return hostname.endsWith('.vercel.app');
+  } catch {
+    return false;
+  }
+}
+
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.has(origin)) {
+      if (!origin || allowedOrigins.has(origin) || isAllowedVercelPreview(origin)) {
         return callback(null, true);
       }
       return callback(new Error(`CORS blocked for origin: ${origin}`));

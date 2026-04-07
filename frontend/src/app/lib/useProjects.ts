@@ -3,6 +3,24 @@ import { projects as fallbackProjects, type Project } from '../data/projectsData
 import { fetchProjects } from './api';
 import { mapApiProjectToUi } from './projectMapper';
 
+function buildProjectFingerprint(project: Project): string {
+  return [project.title, project.location, project.year].map((part) => part.trim().toLowerCase()).join('|');
+}
+
+function mergeProjects(staticProjects: Project[], apiProjects: Project[]): Project[] {
+  const merged = [...staticProjects];
+  const seen = new Set(staticProjects.map(buildProjectFingerprint));
+
+  for (const project of apiProjects) {
+    const fingerprint = buildProjectFingerprint(project);
+    if (seen.has(fingerprint)) continue;
+    merged.unshift(project);
+    seen.add(fingerprint);
+  }
+
+  return merged;
+}
+
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>(fallbackProjects);
   const [loading, setLoading] = useState(true);
@@ -21,7 +39,7 @@ export function useProjects() {
             setProjects(fallbackProjects);
           } else {
             const mapped = records.map(mapApiProjectToUi);
-            setProjects(mapped);
+            setProjects(mergeProjects(fallbackProjects, mapped));
           }
         }
       } catch (err) {

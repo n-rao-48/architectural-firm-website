@@ -3,7 +3,8 @@ const viteEnv = (import.meta as unknown as { env?: Record<string, string | undef
 export const API_BASE_URL = viteEnv?.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 export interface ProjectRecord {
-  id: number;
+  id?: string | number;
+  _id?: string;
   name: string;
   type: string;
   city?: string;
@@ -15,6 +16,15 @@ export interface ProjectRecord {
   description: string;
   image_url: string;
   created_at: string;
+}
+
+export function getProjectRecordId(project: ProjectRecord): string | null {
+  const rawId = project._id ?? project.id;
+  if (rawId === undefined || rawId === null || rawId === '') {
+    return null;
+  }
+
+  return String(rawId);
 }
 
 export interface ClientInquiryPayload {

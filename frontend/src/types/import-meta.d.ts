@@ -6,6 +6,8 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
+declare module '*.css';
+
 declare module '*.png' {
   const src: string;
   export default src;
