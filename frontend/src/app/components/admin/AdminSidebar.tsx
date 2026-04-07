@@ -1,4 +1,4 @@
-import { FolderPlus, Images, LayoutDashboard, ListChecks, LogOut } from 'lucide-react';
+import { FolderPlus, Images, LayoutDashboard, ListChecks, LogOut, MessageSquareMore } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -23,7 +23,7 @@ export function AdminSidebar() {
           ADMIN PANEL
         </p>
         <h2 className="text-[#2B2B2B]" style={{ fontSize: '1.5rem', fontWeight: 400 }}>
-          Bhoomi Constructions
+          Kapadnekar Design Consultancy
         </h2>
       </div>
 
@@ -43,6 +43,10 @@ export function AdminSidebar() {
         <NavLink to="/admin/uploads" className={linkClass}>
           <Images size={18} strokeWidth={1.6} />
           Uploads
+        </NavLink>
+        <NavLink to="/admin/inquiries" className={linkClass}>
+          <MessageSquareMore size={18} strokeWidth={1.6} />
+          Inquiries
         </NavLink>
       </nav>
 

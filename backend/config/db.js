@@ -1,48 +1,25 @@
-import dotenv from 'dotenv';
-import mysql from 'mysql2/promise';
-import pg from 'pg';
+import mongoose from 'mongoose';
 
-dotenv.config();
+const client = process.env.DATABASE_CLIENT || 'mongodb';
 
-const client = process.env.DATABASE_CLIENT || 'mysql';
+async function connectDB() {
+  const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/architecture_firm';
 
-let mysqlPool;
-let pgPool;
-
-if (client === 'postgres') {
-  pgPool = new pg.Pool({
-    host: process.env.PG_HOST,
-    port: Number(process.env.PG_PORT || 5432),
-    user: process.env.PG_USER,
-    password: process.env.PG_PASSWORD,
-    database: process.env.PG_DATABASE,
-  });
-} else if (client === 'mysql') {
-  mysqlPool = mysql.createPool({
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT || 3306),
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10,
-  });
+  try {
+    await mongoose.connect(mongoUri);
+    console.log('MongoDB Connected');
+  } catch (error) {
+    console.error('MongoDB connection failed:', error.message);
+    process.exit(1);
+  }
 }
 
-export async function query(sql, params = []) {
-  if (client === 'memory') {
-    throw new Error('query() is not available in memory mode');
-  }
-
-  if (client === 'postgres') {
-    const result = await pgPool.query(sql, params);
-    return result.rows;
-  }
-
-  const [rows] = await mysqlPool.execute(sql, params);
-  return rows;
+export async function query() {
+  throw new Error('query() is not available when DATABASE_CLIENT=mongodb');
 }
 
 export function getDbClient() {
   return client;
 }
+
+export default connectDB;

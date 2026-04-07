@@ -1,12 +1,20 @@
 import { Mail, MapPin, Phone } from 'lucide-react';
-import { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 import { Link } from 'react-router';
+import { EmailInteractionModal } from './EmailInteractionModal';
 const logoImage = new URL('../assets/logo.png', import.meta.url).href;
 
 
 export function Footer() {
   const [selectedEmail, setSelectedEmail] = useState<string>('');
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const emails = ['s.kaps@rediffmail.com', 'd.kaps@rediffmail.com'];
+
+  const handleEmailClick = (event: MouseEvent<HTMLAnchorElement>, email: string) => {
+    event.preventDefault();
+    setSelectedEmail(email);
+    setIsEmailModalOpen(true);
+  };
 
   return (
     <footer className="bg-[#F5F5F5] px-6 lg:px-12 py-16">
@@ -18,10 +26,10 @@ export function Footer() {
             <Link to="/" className="flex flex-row items-center gap-3">
               <img
                 src={logoImage}
-                alt="Bhoomi Constructions logo"
+                alt="Kapadnekar Design Consultancy logo"
                 className="w-20 h-20 object-contain"
               />
-              <span className="text-[#2B2B2B] tracking-wide" style={{ fontWeight: 400, fontSize: '14px' }}>BHOOMI CONSTRUCTIONS</span>
+              <span className="text-[#2B2B2B] tracking-wide" style={{ fontWeight: 400, fontSize: '14px' }}>Kapadnekar Design Consultancy</span>
             </Link>
             <p className="text-[#2B2B2B]/70" style={{ 
               fontSize: '0.875rem', 
@@ -48,7 +56,7 @@ export function Footer() {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Bhoomi Constructions Office Street View"
+                  title="Kapadnekar Design Consultancy Office Street View"
                 />
               </div>
 
@@ -75,9 +83,9 @@ export function Footer() {
             </h4>
             <div className="space-y-3">
               <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="block text-[#2B2B2B]/70 hover:text-[#f3e218] transition-colors" style={{ fontSize: '0.875rem', fontWeight: 400 }}>Home</Link>
-              <a href="/#about" className="block text-[#2B2B2B]/70 hover:text-[#f3e218] transition-colors" style={{ fontSize: '0.875rem', fontWeight: 400 }}>About</a>
-              <Link to="/projects" className="block text-[#2B2B2B]/70 hover:text-[#f3e218] transition-colors" style={{ fontSize: '0.875rem', fontWeight: 400 }}>Projects</Link>
-              <Link to="/services" className="block text-[#2B2B2B]/70 hover:text-[#f3e218] transition-colors" style={{ fontSize: '0.875rem', fontWeight: 400 }}>Services</Link>
+              <a href="/#about" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="block text-[#2B2B2B]/70 hover:text-[#f3e218] transition-colors" style={{ fontSize: '0.875rem', fontWeight: 400 }}>About</a>
+              <Link to="/projects" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="block text-[#2B2B2B]/70 hover:text-[#f3e218] transition-colors" style={{ fontSize: '0.875rem', fontWeight: 400 }}>Projects</Link>
+              <Link to="/services" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}className="block text-[#2B2B2B]/70 hover:text-[#f3e218] transition-colors" style={{ fontSize: '0.875rem', fontWeight: 400 }}>Services</Link>
             </div>
           </div>
 
@@ -110,10 +118,16 @@ export function Footer() {
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <MapPin size={16} strokeWidth={1.5} className="text-[#f3e218] mt-1 flex-shrink-0" />
-                <span className="text-[#2B2B2B]/70" style={{ fontSize: '0.875rem', fontWeight: 400, lineHeight: 1.6 }}>
+                <a
+                  href="https://maps.app.goo.gl/8M6cSL4gixtppLZY8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#2B2B2B]/70 hover:text-[#f3e218] transition-colors"
+                  style={{ fontSize: '0.875rem', fontWeight: 400, lineHeight: 1.6 }}
+                >
                   205, Space Star, MICO Circle,<br />
                   Tidke Colony, Nashik - 422002
-                </span>
+                </a>
               </div>
               <div className="flex items-center gap-3">
                 <Phone size={16} strokeWidth={1.5} className="text-[#f3e218] flex-shrink-0" />
@@ -130,8 +144,8 @@ export function Footer() {
                     return (
                       <a
                         key={email}
-                        onClick={() => setSelectedEmail(email)}
-                        href={`mailto:${email}`}
+                        onClick={(event) => handleEmailClick(event, email)}
+                        href="#"
                         className={`text-left transition-colors ${
                           isSelected ? 'text-[#f3e218]' : 'text-[#2B2B2B]/70 hover:text-[#f3e218]'
                         }`}
@@ -147,6 +161,12 @@ export function Footer() {
               </div>
             </div>
 
+            <EmailInteractionModal
+              selectedEmail={selectedEmail}
+              open={isEmailModalOpen}
+              onOpenChange={setIsEmailModalOpen}
+            />
+
           </div>
         </div>
 
@@ -156,7 +176,7 @@ export function Footer() {
         {/* Copyright */}
         <div className="text-center">
           <p className="text-[#2B2B2B]/50" style={{ fontSize: '0.75rem', fontWeight: 400, letterSpacing: '0.5px' }}>
-            © {new Date().getFullYear()} Bhoomi Constructions. All rights reserved.
+            © {new Date().getFullYear()} Kapadnekar Design Consultancy. All rights reserved.
           </p>
         </div>
       </div>

@@ -1,15 +1,21 @@
-import { Navigation } from '../components/Navigation';
-import { HeroSection } from '../components/home/HeroSection';
+import { motion } from 'framer-motion';
+import { Footer } from '../components/Footer';
 import { AboutSection } from '../components/home/AboutSection';
+import { CTASection } from '../components/home/CTASection';
+import { HeroSection } from '../components/home/HeroSection';
 import { ProjectsSection } from '../components/home/ProjectsSection';
 import { ServicesSection } from '../components/home/ServicesSection';
 import { TeamSection } from '../components/home/TeamSection';
-import { CTASection } from '../components/home/CTASection';
-import { Footer } from '../components/Footer';
+import { Navigation } from '../components/Navigation';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white">
+    <motion.div
+      className="min-h-screen bg-white"
+      initial={{ opacity: 0, y: 60 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+    >
       <Navigation />
       <HeroSection />
       <AboutSection />
@@ -18,6 +24,6 @@ export default function Home() {
       <TeamSection />
       <CTASection />
       <Footer />
-    </div>
+    </motion.div>
   );
 }

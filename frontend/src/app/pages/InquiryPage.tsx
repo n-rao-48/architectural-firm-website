@@ -1,6 +1,8 @@
+import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Navigation } from '../components/Navigation';
 import { Footer } from '../components/Footer';
+import { Navigation } from '../components/Navigation';
+import { createClientInquiry } from '../lib/api';
 
 export default function InquiryPage() {
   const [formData, setFormData] = useState({
@@ -13,10 +15,48 @@ export default function InquiryPage() {
     message: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle form submission
+    setSubmitting(true);
+    setSuccessMessage('');
+    setErrorMessage('');
+
+    try {
+      const extraDetails = [
+        formData.budget ? `Budget: ${formData.budget}` : '',
+        formData.location ? `Location: ${formData.location}` : '',
+        formData.message ? `Message: ${formData.message}` : '',
+      ]
+        .filter(Boolean)
+        .join(' | ');
+
+      await createClientInquiry({
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        projectType: formData.projectType,
+        message: extraDetails,
+      });
+
+      setSuccessMessage('Inquiry submitted successfully. Our team will contact you soon.');
+      setFormData({
+        fullName: '',
+        email: '',
+        phone: '',
+        projectType: '',
+        budget: '',
+        location: '',
+        message: '',
+      });
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to submit inquiry');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -27,7 +67,7 @@ export default function InquiryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <motion.div className="min-h-screen bg-white" initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} >
       <Navigation />
       
       {/* Hero Section */}
@@ -60,6 +100,18 @@ export default function InquiryPage() {
             {/* Form */}
             <div>
               <form onSubmit={handleSubmit} className="space-y-8">
+                {successMessage && (
+                  <p className="text-green-700" style={{ fontSize: '14px', fontWeight: 400 }}>
+                    {successMessage}
+                  </p>
+                )}
+
+                {errorMessage && (
+                  <p className="text-red-600" style={{ fontSize: '14px', fontWeight: 400 }}>
+                    {errorMessage}
+                  </p>
+                )}
+
                 {/* Full Name */}
                 <div>
                   <label htmlFor="fullName" className="block text-[#2B2B2B] mb-3" style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}>
@@ -148,11 +200,11 @@ export default function InquiryPage() {
                     style={{ fontSize: '15px', fontWeight: 400 }}
                   >
                     <option value="">Select range</option>
-                    <option value="under-50k">Under $50,000</option>
-                    <option value="50k-100k">$50,000 - $100,000</option>
-                    <option value="100k-250k">$100,000 - $250,000</option>
-                    <option value="250k-500k">$250,000 - $500,000</option>
-                    <option value="above-500k">Above $500,000</option>
+                    <option value="under-50k">Under Rs.50,000</option>
+                    <option value="50k-100k">Rs.50,000 - Rs.100,000</option>
+                    <option value="100k-250k">Rs.100,000 - Rs.250,000</option>
+                    <option value="250k-500k">Rs.250,000 - Rs.500,000</option>
+                    <option value="above-500k">Above Rs.500,000</option>
                   </select>
                 </div>
 
@@ -192,10 +244,11 @@ export default function InquiryPage() {
                 {/* Submit Button */}
                 <button
                   type="submit"
+                  disabled={submitting}
                   className="w-full px-12 py-4 bg-[#f3e218] text-white hover:bg-[#2B2B2B] transition-colors duration-300"
                   style={{ fontSize: '14px', fontWeight: 400, letterSpacing: '1px', borderRadius: '4px' }}
                 >
-                  Submit Inquiry
+                  {submitting ? 'Submitting...' : 'Submit Inquiry'}
                 </button>
               </form>
             </div>
@@ -215,6 +268,6 @@ export default function InquiryPage() {
       </section>
 
       <Footer />
-    </div>
+    </motion.div>
   );
 }

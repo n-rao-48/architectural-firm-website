@@ -8,11 +8,11 @@ export async function login(req, res) {
     return res.status(400).json({ message: 'Email and password are required' });
   }
 
-  const configuredEmail = process.env.ADMIN_EMAIL || 'admin@bhoomiconstruction.com';
+  const configuredEmail = process.env.ADMIN_EMAIL || 'admin@kapadnekardesignconsultancy.com';
   const configuredPassword = process.env.ADMIN_PASSWORD || 'admin123';
   const configuredHash = process.env.ADMIN_PASSWORD_HASH;
 
-  const allowedEmails = [configuredEmail.toLowerCase(), 'admin@bhoomiconstruction.com'];
+  const allowedEmails = [configuredEmail.toLowerCase(), 'admin@kapadnekardesignconsultancy.com'];
   const emailMatch = allowedEmails.includes(email.toLowerCase());
   let passwordMatch = false;
 

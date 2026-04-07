@@ -1,28 +1,66 @@
+import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Navigation } from '../components/Navigation';
 import { Footer } from '../components/Footer';
-import { Upload } from 'lucide-react';
+import { Navigation } from '../components/Navigation';
+import { createCareerInquiry } from '../lib/api';
 
 export default function ApplicationPage() {
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',
     email: '',
-    phone: '',
-    qualification: '',
-    portfolio: '',
-    coverLetter: '',
+    gender: '',
+    age: '',
+    dob: '',
+    state: '',
+    skills: '',
     agreeToTerms: false
   });
 
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Application submitted:', formData, resumeFile);
-    // Handle form submission
+    setSubmitting(true);
+    setSuccessMessage('');
+    setErrorMessage('');
+
+    try {
+      const parsedSkills = formData.skills
+        .split(',')
+        .map((skill) => skill.trim())
+        .filter(Boolean);
+
+      await createCareerInquiry({
+        name: formData.name,
+        email: formData.email,
+        gender: formData.gender,
+        age: formData.age ? Number(formData.age) : undefined,
+        dob: formData.dob || undefined,
+        state: formData.state,
+        skills: parsedSkills,
+      });
+
+      setSuccessMessage('Application submitted successfully. We will review your profile shortly.');
+      setFormData({
+        name: '',
+        email: '',
+        gender: '',
+        age: '',
+        dob: '',
+        state: '',
+        skills: '',
+        agreeToTerms: false,
+      });
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to submit application');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, type, value } = e.target;
     
     if (type === 'checkbox') {
@@ -38,14 +76,8 @@ export default function ApplicationPage() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setResumeFile(e.target.files[0]);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-white">
+    <motion.div className="min-h-screen bg-white" initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} >
       <Navigation />
       
       {/* Hero Section */}
@@ -75,16 +107,28 @@ export default function ApplicationPage() {
       <section className="py-32 px-6 lg:px-12">
         <div className="max-w-[800px] mx-auto">
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Full Name */}
+            {successMessage && (
+              <p className="text-green-700" style={{ fontSize: '14px', fontWeight: 400 }}>
+                {successMessage}
+              </p>
+            )}
+
+            {errorMessage && (
+              <p className="text-red-600" style={{ fontSize: '14px', fontWeight: 400 }}>
+                {errorMessage}
+              </p>
+            )}
+
+            {/* Name */}
             <div>
-              <label htmlFor="fullName" className="block text-[#2B2B2B] mb-3" style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}>
-                FULL NAME
+              <label htmlFor="name" className="block text-[#2B2B2B] mb-3" style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}>
+                NAME
               </label>
               <input
                 type="text"
-                id="fullName"
-                name="fullName"
-                value={formData.fullName}
+                id="name"
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 required
                 className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EDEDED] text-[#2B2B2B] focus:outline-none focus:border-[#f3e218] transition-colors"
@@ -109,16 +153,56 @@ export default function ApplicationPage() {
               />
             </div>
 
-            {/* Phone */}
+            {/* Gender */}
             <div>
-              <label htmlFor="phone" className="block text-[#2B2B2B] mb-3" style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}>
-                PHONE
+              <label htmlFor="gender" className="block text-[#2B2B2B] mb-3" style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}>
+                GENDER
+              </label>
+              <select
+                id="gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                required
+                className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EDEDED] text-[#2B2B2B] focus:outline-none focus:border-[#f3e218] transition-colors"
+                style={{ fontSize: '15px', fontWeight: 400 }}
+              >
+                <option value="">Select gender</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+
+            {/* Age */}
+            <div>
+              <label htmlFor="age" className="block text-[#2B2B2B] mb-3" style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}>
+                AGE
               </label>
               <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
+                type="number"
+                id="age"
+                name="age"
+                value={formData.age}
+                onChange={handleChange}
+                required
+                min={1}
+                className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EDEDED] text-[#2B2B2B] focus:outline-none focus:border-[#f3e218] transition-colors"
+                style={{ fontSize: '15px', fontWeight: 400 }}
+              />
+            </div>
+
+            {/* Date of Birth */}
+            <div>
+              <label htmlFor="dob" className="block text-[#2B2B2B] mb-3" style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}>
+                DATE OF BIRTH
+              </label>
+              <input
+                type="date"
+                id="dob"
+                name="dob"
+                value={formData.dob}
                 onChange={handleChange}
                 required
                 className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EDEDED] text-[#2B2B2B] focus:outline-none focus:border-[#f3e218] transition-colors"
@@ -126,80 +210,35 @@ export default function ApplicationPage() {
               />
             </div>
 
-            {/* Highest Qualification */}
+            {/* State */}
             <div>
-              <label htmlFor="qualification" className="block text-[#2B2B2B] mb-3" style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}>
-                HIGHEST QUALIFICATION
+              <label htmlFor="state" className="block text-[#2B2B2B] mb-3" style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}>
+                STATE
               </label>
               <input
                 type="text"
-                id="qualification"
-                name="qualification"
-                value={formData.qualification}
+                id="state"
+                name="state"
+                value={formData.state}
                 onChange={handleChange}
                 required
-                placeholder="e.g., Bachelor of Architecture, Master of Interior Design"
-                className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EDEDED] text-[#2B2B2B] focus:outline-none focus:border-[#f3e218] transition-colors placeholder:text-[#2B2B2B]/30"
+                className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EDEDED] text-[#2B2B2B] focus:outline-none focus:border-[#f3e218] transition-colors"
                 style={{ fontSize: '15px', fontWeight: 400 }}
               />
             </div>
 
-            {/* Portfolio Link */}
+            {/* Skills */}
             <div>
-              <label htmlFor="portfolio" className="block text-[#2B2B2B] mb-3" style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}>
-                PORTFOLIO LINK (OPTIONAL)
-              </label>
-              <input
-                type="url"
-                id="portfolio"
-                name="portfolio"
-                value={formData.portfolio}
-                onChange={handleChange}
-                placeholder="https://yourportfolio.com"
-                className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EDEDED] text-[#2B2B2B] focus:outline-none focus:border-[#f3e218] transition-colors placeholder:text-[#2B2B2B]/30"
-                style={{ fontSize: '15px', fontWeight: 400 }}
-              />
-            </div>
-
-            {/* Resume Upload */}
-            <div>
-              <label htmlFor="resume" className="block text-[#2B2B2B] mb-3" style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}>
-                RESUME UPLOAD
-              </label>
-              <div className="relative">
-                <input
-                  type="file"
-                  id="resume"
-                  onChange={handleFileChange}
-                  accept=".pdf,.doc,.docx"
-                  required
-                  className="hidden"
-                />
-                <label 
-                  htmlFor="resume"
-                  className="flex items-center gap-3 px-6 py-4 border border-[#EDEDED] cursor-pointer hover:border-[#f3e218] transition-colors"
-                  style={{ borderRadius: '4px' }}
-                >
-                  <Upload size={20} strokeWidth={1.5} className="text-[#2B2B2B]" />
-                  <span className="text-[#2B2B2B]" style={{ fontSize: '14px', fontWeight: 400 }}>
-                    {resumeFile ? resumeFile.name : 'Choose file (PDF, DOC, DOCX)'}
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            {/* Cover Letter */}
-            <div>
-              <label htmlFor="coverLetter" className="block text-[#2B2B2B] mb-3" style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}>
-                COVER LETTER
+              <label htmlFor="skills" className="block text-[#2B2B2B] mb-3" style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}>
+                SKILLS (COMMA SEPARATED)
               </label>
               <textarea
-                id="coverLetter"
-                name="coverLetter"
-                value={formData.coverLetter}
+                id="skills"
+                name="skills"
+                value={formData.skills}
                 onChange={handleChange}
                 required
-                rows={6}
+                rows={4}
                 className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#EDEDED] text-[#2B2B2B] focus:outline-none focus:border-[#f3e218] transition-colors resize-none"
                 style={{ fontSize: '15px', fontWeight: 400 }}
               />
@@ -224,17 +263,17 @@ export default function ApplicationPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={!formData.agreeToTerms}
+              disabled={!formData.agreeToTerms || submitting}
               className="w-full px-12 py-4 bg-[#f3e218] text-white hover:bg-[#2B2B2B] transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontSize: '14px', fontWeight: 400, letterSpacing: '1px', borderRadius: '4px' }}
             >
-              Submit Application
+              {submitting ? 'Submitting...' : 'Submit Application'}
             </button>
           </form>
         </div>
       </section>
 
       <Footer />
-    </div>
+    </motion.div>
   );
 }

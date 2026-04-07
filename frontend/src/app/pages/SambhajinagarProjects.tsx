@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Footer } from '../components/Footer';
 import { Navigation } from '../components/Navigation';
@@ -14,7 +15,7 @@ export default function SambhajinagarProjects() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <motion.div className="min-h-screen bg-white" initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} >
       <Navigation />
 
       {/* Header */}
@@ -27,7 +28,7 @@ export default function SambhajinagarProjects() {
             Projects in Chhatrapati Sambhaji Nagar
           </h1>
           <p className="text-[#2B2B2B]/70 mt-4 max-w-xl mx-auto" style={{ fontSize: '1rem', fontWeight: 400, lineHeight: 1.8 }}>
-            Bhoomi Constructions has executed residential and commercial projects in Chhatrapati Sambhaji Nagar, bringing considered design and quality construction to this growing region.
+            Kapadnekar Design Consultancy has executed residential and commercial projects in Chhatrapati Sambhaji Nagar, bringing considered design and quality construction to this growing region.
           </p>
         </div>
       </section>
@@ -91,6 +92,6 @@ export default function SambhajinagarProjects() {
       )}
 
       <Footer />
-    </div>
+    </motion.div>
   );
 }

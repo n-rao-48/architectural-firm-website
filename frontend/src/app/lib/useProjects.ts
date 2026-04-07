@@ -16,13 +16,18 @@ export function useProjects() {
       setError(null);
       try {
         const records = await fetchProjects();
-        const mapped = records.map(mapApiProjectToUi);
         if (isMounted) {
-          setProjects(mapped);
+          if (records.length === 0) {
+            setProjects(fallbackProjects);
+          } else {
+            const mapped = records.map(mapApiProjectToUi);
+            setProjects(mapped);
+          }
         }
       } catch (err) {
         if (isMounted) {
           setError(err instanceof Error ? err.message : 'Failed to fetch projects');
+          setProjects(fallbackProjects);
         }
       } finally {
         if (isMounted) {

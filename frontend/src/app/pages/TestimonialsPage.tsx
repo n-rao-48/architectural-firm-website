@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { Footer } from '../components/Footer';
 import { Navigation } from '../components/Navigation';
 
@@ -57,7 +58,7 @@ const testimonials = [
 
 export default function TestimonialsPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <motion.div className="min-h-screen bg-white" initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} >
       <Navigation />
       
       {/* Hero Section */}
@@ -159,7 +160,7 @@ export default function TestimonialsPage() {
                     <p className="text-[#2B2B2B] mb-3" style={{ fontSize: '11px', fontWeight: 400, letterSpacing: '2px' }}>
                       BEFORE & AFTER VIDEO
                     </p>
-                    <div className="relative w-full max-w-[420px] overflow-hidden" style={{ paddingTop: '177.78%' }}>
+                    <div className="relative w-full max-w-[420px] overflow-hidden" style={{ paddingTop: '75%' }}>
                       <iframe
                         src={testimonial.youtubeEmbedUrl}
                         title={`${testimonial.clientName} testimonial video`}
@@ -183,6 +184,6 @@ export default function TestimonialsPage() {
       </section>
 
       <Footer />
-    </div>
+    </motion.div>
   );
 }

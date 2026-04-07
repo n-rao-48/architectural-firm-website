@@ -16,6 +16,9 @@ export interface Project {
   description: string;
 }
 
+const eetamaxCoverImage = new URL('../assets/nR1.png', import.meta.url).href;
+const alligoOfficeImage = new URL('../assets/Alligo Horizon.jpeg', import.meta.url).href;
+
 export const projects: Project[] = [
   // Pune
   {
@@ -130,5 +133,34 @@ export const projects: Project[] = [
     area: '11,000 sq ft',
     image: 'https://images.unsplash.com/photo-1770816307909-de85ea3b54a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaW5pbWFsaXN0JTIwb2ZmaWNlJTIwaW50ZXJpb3IlMjBkZXNpZ258ZW58MXx8fHwxNzcxMzAyOTE2fDA&ixlib=rb-4.1.0&q=80&w=1080',
     description: "A purpose-built business centre in the Waluj industrial corridor, offering flexible commercial floor plates and a refined architectural language serving the region's growing professional community.",
+  },
+  // Ongoing (also featured in dedicated ongoing page)
+  {
+    id: 11,
+    title: 'Eetamax',
+    category: 'Commercial',
+    city: 'ahilyanagar',
+    status: 'ongoing',
+    location: 'Ahilyanagar, Maharashtra',
+    year: '2026',
+    area: 'Proposed industrial plan',
+    mapsQuery: 'Ahilyanagar, Maharashtra',
+    image: eetamaxCoverImage,
+    description:
+      'Proposed industrial development plan prepared for Eetamax, focused on efficient planning, scalable workflow, and practical movement across the site.',
+  },
+  {
+    id: 12,
+    title: 'M/s Alligo Horizon Pvt. Ltd.',
+    category: 'Commercial',
+    city: 'nashik',
+    status: 'ongoing',
+    location: 'Waghere, Igatpuri, Nashik',
+    year: '2026',
+    area: 'Factory office (ongoing)',
+    mapsQuery: 'Waghere, Igatpuri, Nashik, Maharashtra',
+    image: alligoOfficeImage,
+    description:
+      'Ongoing factory office project for M/s Alligo Horizon Pvt. Ltd., combining industrial functionality with a clear, organized office environment for daily operations.',
   },
 ];

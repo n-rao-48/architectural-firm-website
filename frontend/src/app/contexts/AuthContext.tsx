@@ -1,43 +1,63 @@
 "use client";
 
 import React, { createContext, useContext, useState } from 'react';
+import { loginAdmin } from '../lib/api';
+
+interface AdminUser {
+  email: string;
+}
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  token: string | null;
+  user: AdminUser | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    // Use sessionStorage instead of localStorage for session-based auth
-    // This ensures login is required each time the browser/tab is opened
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('admin_authenticated') === 'true';
-    }
-    return false;
+  const [token, setToken] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return sessionStorage.getItem('admin_token');
   });
+  const [user, setUser] = useState<AdminUser | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const raw = sessionStorage.getItem('admin_user');
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as AdminUser;
+    } catch {
+      return null;
+    }
+  });
+  const [loading, setLoading] = useState(false);
+  const isAuthenticated = Boolean(token);
 
   const login = async (email: string, password: string) => {
-    // Simple authentication logic - you can enhance this with real API
-    // For now, using hardcoded credentials
-    if (email === 'admin@bhoomiconstruction.com' && password === 'admin123') {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('admin_authenticated', 'true');
-      return true;
+    setLoading(true);
+    try {
+      const response = await loginAdmin(email, password);
+      setToken(response.token);
+      setUser(response.admin);
+      sessionStorage.setItem('admin_token', response.token);
+      sessionStorage.setItem('admin_user', JSON.stringify(response.admin));
+    } finally {
+      setLoading(false);
     }
-    return false;
   };
 
   const logout = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem('admin_authenticated');
+    setToken(null);
+    setUser(null);
+    sessionStorage.removeItem('admin_token');
+    sessionStorage.removeItem('admin_user');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, token, user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

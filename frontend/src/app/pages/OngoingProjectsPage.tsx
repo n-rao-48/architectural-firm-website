@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Footer } from '../components/Footer';
 import { Navigation } from '../components/Navigation';
@@ -25,7 +26,7 @@ export default function OngoingProjectsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <motion.div className="min-h-screen bg-white" initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} >
       <Navigation />
 
       <section className="pt-32 pb-16 px-6 lg:px-12 bg-[#F8F8F8]">
@@ -170,6 +171,6 @@ export default function OngoingProjectsPage() {
       )}
 
       <Footer />
-    </div>
+    </motion.div>
   );
 }

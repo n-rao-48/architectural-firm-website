@@ -2,6 +2,7 @@ import { Navigate, createBrowserRouter } from 'react-router';
 import AddProjectPage from './admin/add-project/page';
 import AdminDashboardPage from './admin/dashboard/page';
 import EditProjectPage from './admin/edit-project/[id]/page';
+import AdminInquiriesPage from './admin/inquiries/page';
 import AdminLayout from './admin/layout';
 import AdminLoginPage from './admin/login/page';
 import ManageProjectsPage from './admin/manage-projects/page';
@@ -103,6 +104,10 @@ export const router = createBrowserRouter([
       {
         path: 'uploads',
         Component: UploadsPage,
+      },
+      {
+        path: 'inquiries',
+        Component: AdminInquiriesPage,
       },
     ],
   },

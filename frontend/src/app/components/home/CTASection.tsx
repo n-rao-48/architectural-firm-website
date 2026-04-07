@@ -1,5 +1,5 @@
-import { Link } from 'react-router';
 import { MessageCircle } from 'lucide-react';
+import { Link } from 'react-router';
 
 export function CTASection() {
   return (
@@ -26,7 +26,7 @@ export function CTASection() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link 
-              to="/inquiry"
+              to="/inquiry" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="inline-flex items-center justify-center px-12 py-4 bg-[#2B2B2B] text-white hover:bg-[#f3e218] transition-colors duration-300"
               style={{ fontSize: '14px', fontWeight: 400, letterSpacing: '1px' }}
             >
@@ -34,7 +34,7 @@ export function CTASection() {
             </Link>
 
             <a 
-              href="https://wa.me/1234567890"
+              href="https://wa.me/8788905151"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-[#2B2B2B] hover:text-[#f3e218] transition-colors"

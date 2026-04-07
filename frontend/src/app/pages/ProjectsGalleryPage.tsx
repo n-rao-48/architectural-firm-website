@@ -1,5 +1,5 @@
+import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Link } from 'react-router';
 import { Footer } from '../components/Footer';
 import { Navigation } from '../components/Navigation';
 import { ProjectCard } from '../components/ProjectCard';
@@ -26,7 +26,7 @@ export default function ProjectsGalleryPage() {
   const statuses: FilterStatus[] = ['All', 'completed', 'ongoing'];
 
   return (
-    <div className="min-h-screen bg-white">
+  <motion.div className="min-h-screen bg-white" initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} >
       <Navigation />
 
       {/* Hero Section */}
@@ -42,7 +42,7 @@ export default function ProjectsGalleryPage() {
             Our Projects
           </h1>
           <p className="text-[#2B2B2B]/70 mt-4 max-w-xl mx-auto" style={{ fontSize: '1rem', fontWeight: 400, lineHeight: 1.8 }}>
-            Bhoomi Constructions has completed projects across Pune, Nashik, Ahilyanagar, and Chhatrapati Sambhaji Nagar.
+            Kapadnekar Design Consultancy has completed projects across Pune, Nashik, Ahilyanagar, and Chhatrapati Sambhaji Nagar.
           </p>
         </div>
       </section>
@@ -82,15 +82,6 @@ export default function ProjectsGalleryPage() {
               </button>
             ))}
           </div>
-          <div className="mt-8 flex justify-center">
-            <Link
-              to="/projects/ongoing"
-              className="px-6 py-3 border border-[#2B2B2B] text-[#2B2B2B] hover:bg-[#2B2B2B] hover:text-white transition-colors"
-              style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '1px' }}
-            >
-              View Ongoing Projects
-            </Link>
-          </div>
         </div>
       </section>
 
@@ -98,11 +89,19 @@ export default function ProjectsGalleryPage() {
       {!selectedProject && (
         <section className="py-32 px-6 lg:px-12">
           <div className="max-w-[1200px] mx-auto">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredProjects.map((project) => (
-                <ProjectCard key={project.id} project={project} onClick={() => setSelectedProject(project)} />
-              ))}
-            </div>
+            {filteredProjects.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-[#2B2B2B]/70" style={{ fontSize: '1rem', fontWeight: 400, letterSpacing: '0.01em' }}>
+                  No project added in this section yet
+                </p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredProjects.map((project) => (
+                  <ProjectCard key={project.id} project={project} onClick={() => setSelectedProject(project)} />
+                ))}
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -166,6 +165,6 @@ export default function ProjectsGalleryPage() {
       )}
 
       <Footer />
-    </div>
+    </motion.div>
   );
 }

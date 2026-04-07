@@ -1,5 +1,5 @@
 import { ChevronDown, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { Link, useLocation } from 'react-router';
 
 const logoImage = new URL('../assets/logo.png', import.meta.url).href;
@@ -16,6 +16,8 @@ const projectLinks = [
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [projectsMobileOpen, setProjectsMobileOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<'home' | 'about'>('home');
+
   const location = useLocation();
 
   const isActive = (path: string) => {
@@ -23,52 +25,175 @@ export function Navigation() {
     return location.pathname.startsWith(path);
   };
 
+  // ✅ GLOBAL SCROLL TO TOP (except About)
+  useEffect(() => {
+    if (location.hash === '#about') return;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [location.pathname]);
+
+  const scrollToAboutSection = () => {
+    const aboutSection = document.getElementById('about');
+    if (!aboutSection) return;
+
+    const navOffset = 90;
+    const top =
+      aboutSection.getBoundingClientRect().top +
+      window.scrollY -
+      navOffset;
+
+    window.scrollTo({ top, behavior: 'smooth' });
+  };
+
+  const handleAboutClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+    shouldCloseMobile = false
+  ) => {
+    if (shouldCloseMobile) closeMobile();
+
+    if (location.pathname === '/') {
+      event.preventDefault();
+      scrollToAboutSection();
+      setActiveSection('about');
+    }
+  };
+
+  const handleHomeClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+    shouldCloseMobile = false
+  ) => {
+    if (shouldCloseMobile) closeMobile();
+
+    if (location.pathname === '/') {
+      event.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setActiveSection('home');
+    }
+  };
+
+  // 🔥 Scroll detection for active section
+  useEffect(() => {
+    if (location.pathname !== '/') return;
+
+    const handleScroll = () => {
+      const aboutSection = document.getElementById('about');
+      if (!aboutSection) return;
+
+      const rect = aboutSection.getBoundingClientRect();
+
+      if (rect.top <= 100 && rect.bottom >= 100) {
+        setActiveSection('about');
+      } else if (window.scrollY < 100) {
+        setActiveSection('home');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [location.pathname]);
+
+  useEffect(() => {
+  if (location.pathname === '/' && location.hash === '#about') {
+    const timer = setTimeout(() => {
+      const aboutSection = document.getElementById('about');
+      if (!aboutSection) return;
+
+      const navOffset = 90;
+      const top =
+        aboutSection.getBoundingClientRect().top +
+        window.scrollY -
+        navOffset;
+
+      window.scrollTo({ top, behavior: 'smooth' });
+    }, 100); // small delay ensures DOM is ready
+
+    return () => clearTimeout(timer);
+  }
+}, [location.pathname, location.hash]);
+
   const closeMobile = () => {
     setMobileMenuOpen(false);
     setProjectsMobileOpen(false);
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#F5F5F5]">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-[#F5F5F5]">
       <div className="max-w-[1600px] mx-auto px-6 lg:px-12">
         <div className="flex items-center justify-between h-20">
+
           {/* Logo */}
           <Link to="/" className="flex flex-row items-center gap-3">
             <img
               src={logoImage}
-              alt="Bhoomi Constructions logo"
+              alt="Kapadnekar Design Consultancy logo"
               className="w-20 h-20 object-contain"
             />
-            <span className="text-[#2B2B2B] tracking-wide" style={{ fontWeight: 400, fontSize: '14px' }}>BHOOMI CONSTRUCTIONS</span>
+            <div className="leading-tight">
+              <h4 className="text-[#2B2B2B] text-[1.15rem] sm:text-[1.3rem] tracking-[0.02em]">
+                Kapadnekar
+              </h4>
+              <span className="text-[#2B2B2B]/70 uppercase tracking-[0.18em] text-[0.6rem] sm:text-[0.64rem] block mt-1">
+                Design Consultancy
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-10">
-            <Link to="/" className={`text-[#2B2B2B] hover:text-[#f3e218] transition-colors relative ${isActive('/') ? 'after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[1px] after:bg-[#f3e218]' : ''}`} style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }}>Home</Link>
-            <a href="/#about" className="text-[#2B2B2B] hover:text-[#f3e218] transition-colors" style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }}>About</a>
+
+            {/* Home */}
+            <Link
+              to="/"
+              onClick={(e) => handleHomeClick(e)}
+              className={`text-[#2B2B2B] hover:text-[#f3e218] transition-colors relative ${
+                location.pathname === '/' && activeSection === 'home'
+                  ? 'after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[1px] after:bg-[#f3e218]'
+                  : ''
+              }`}
+            >
+              Home
+            </Link>
+
+            {/* About */}
+            <Link
+              to="/#about"
+              onClick={(e) => handleAboutClick(e)}
+              className={`text-[#2B2B2B] hover:text-[#f3e218] transition-colors relative ${
+                location.pathname === '/' && activeSection === 'about'
+                  ? 'after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[1px] after:bg-[#f3e218]'
+                  : ''
+              }`}
+            >
+              About
+            </Link>
 
             {/* Projects Dropdown */}
             <div className="relative group">
               <button
-                className={`flex items-center gap-1 text-[#2B2B2B] hover:text-[#f3e218] transition-colors relative ${isActive('/projects') ? 'text-[#f3e218]' : ''}`}
-                style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }}
+                className={`flex items-center gap-1 transition-colors ${
+                  isActive('/projects')
+                  ? 'text-[#f3e218]'
+                  : 'text-[#2B2B2B] hover:text-[#f3e218]'
+                }`}
               >
                 Projects
-                <ChevronDown size={13} strokeWidth={1.5} className="transition-transform duration-200 group-hover:rotate-180" />
-                {isActive('/projects') && (
-                  <span className="absolute bottom-[-4px] left-0 right-0 h-[1px] bg-[#f3e218]" />
-                )}
+                <ChevronDown size={13} />
               </button>
-              <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 hidden group-hover:block z-50">
+
+              {isActive('/projects') && (
+                <span className="absolute bottom-[-4px] left-0 right-0 h-[1px] bg-[#f3e218]" />
+              )}
+
+              <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 hidden group-hover:block">
                 <div className="bg-white border border-[#EDEDED] shadow-sm min-w-[220px] py-1">
                   {projectLinks.map((link) => (
                     <Link
                       key={link.to}
                       to={link.to}
-                      className={`block px-5 py-2.5 hover:bg-[#F8F8F8] transition-colors ${
-                        location.pathname === link.to ? 'text-[#f3e218]' : 'text-[#2B2B2B] hover:text-[#f3e218]'
-                      }`}
-                      style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '0.5px' }}
+                      className={`block px-5 py-2.5 transition-colors ${
+  location.pathname === link.to
+    ? 'text-[#f3e218]'
+    : 'text-[#2B2B2B] hover:text-[#f3e218]'
+}`}
                     >
                       {link.label}
                     </Link>
@@ -77,68 +202,74 @@ export function Navigation() {
               </div>
             </div>
 
-            <a href="/#services" className="text-[#2B2B2B] hover:text-[#f3e218] transition-colors" style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }}>Services</a>
-            <Link to="/team" className={`text-[#2B2B2B] hover:text-[#f3e218] transition-colors relative ${isActive('/team') ? 'after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[1px] after:bg-[#f3e218]' : ''}`} style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }}>Team</Link>
-            <Link to="/testimonials" className={`text-[#2B2B2B] hover:text-[#f3e218] transition-colors relative ${isActive('/testimonials') ? 'after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[1px] after:bg-[#f3e218]' : ''}`} style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }}>Testimonials</Link>
-            <Link to="/inquiry" className={`text-[#2B2B2B] hover:text-[#f3e218] transition-colors relative ${isActive('/inquiry') ? 'after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[1px] after:bg-[#f3e218]' : ''}`} style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }}>Contact</Link>
-            <Link to="/apply" className={`text-[#2B2B2B] hover:text-[#f3e218] transition-colors relative ${isActive('/apply') ? 'after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[1px] after:bg-[#f3e218]' : ''}`} style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }}>Apply</Link>
+            {/* Other Links */}
+            {[
+              { label: 'Services', to: '/services' },
+              { label: 'Team', to: '/team' },
+              { label: 'Testimonials', to: '/testimonials' },
+              { label: 'Contact', to: '/inquiry' },
+              { label: 'Apply', to: '/apply' },
+            ].map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`text-[#2B2B2B] hover:text-[#f3e218] relative ${
+                  isActive(item.to)
+                    ? 'after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[1px] after:bg-[#f3e218]'
+                    : ''
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Toggle */}
           <button
-            className="md:hidden text-[#2B2B2B]"
+            className="md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? <X size={24} strokeWidth={1.5} /> : <Menu size={24} strokeWidth={1.5} />}
+            {mobileMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden pb-6 pt-2 border-t border-[#F5F5F5]">
-            <div className="flex flex-col gap-4">
-              <Link to="/" className="text-[#2B2B2B] hover:text-[#f3e218] transition-colors py-2" style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }} onClick={closeMobile}>Home</Link>
-              <a href="/#about" className="text-[#2B2B2B] hover:text-[#f3e218] transition-colors py-2" style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }} onClick={closeMobile}>About</a>
+          <div className="md:hidden pt-4 flex flex-col gap-4">
 
-              {/* Mobile Projects Accordion */}
-              <div>
-                <button
-                  className={`flex items-center justify-between w-full py-2 transition-colors ${
-                    isActive('/projects') ? 'text-[#f3e218]' : 'text-[#2B2B2B] hover:text-[#f3e218]'
-                  }`}
-                  style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }}
-                  onClick={() => setProjectsMobileOpen(!projectsMobileOpen)}
-                >
-                  Projects
-                  <ChevronDown size={13} strokeWidth={1.5} className={`transition-transform duration-200 ${projectsMobileOpen ? 'rotate-180' : ''}`} />
-                </button>
-                {projectsMobileOpen && (
-                  <div className="pl-4 mt-1 flex flex-col gap-2 border-l border-[#EDEDED]">
-                    {projectLinks.map((link) => (
-                      <Link
-                        key={link.to}
-                        to={link.to}
-                        className={`py-1.5 transition-colors ${
-                          location.pathname === link.to ? 'text-[#f3e218]' : 'text-[#2B2B2B]/70 hover:text-[#f3e218]'
-                        }`}
-                        style={{ fontSize: '13px', fontWeight: 400, letterSpacing: '0.5px' }}
-                        onClick={closeMobile}
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
+  <Link to="/" onClick={(e) => handleHomeClick(e, true)}>
+    Home
+  </Link>
 
-              <a href="/#services" className="text-[#2B2B2B] hover:text-[#f3e218] transition-colors py-2" style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }} onClick={closeMobile}>Services</a>
-              <Link to="/team" className="text-[#2B2B2B] hover:text-[#f3e218] transition-colors py-2" style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }} onClick={closeMobile}>Team</Link>
-              <Link to="/testimonials" className="text-[#2B2B2B] hover:text-[#f3e218] transition-colors py-2" style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }} onClick={closeMobile}>Testimonials</Link>
-              <Link to="/inquiry" className="text-[#2B2B2B] hover:text-[#f3e218] transition-colors py-2" style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }} onClick={closeMobile}>Contact</Link>
-              <Link to="/apply" className="text-[#2B2B2B] hover:text-[#f3e218] transition-colors py-2" style={{ fontWeight: 400, fontSize: '14px', letterSpacing: '0.5px' }} onClick={closeMobile}>Apply</Link>
-            </div>
-          </div>
+  <Link to="/#about" onClick={(e) => handleAboutClick(e, true)}>
+    About
+  </Link>
+
+  <Link to="/projects" onClick={closeMobile}>
+    Projects
+  </Link>
+
+  <Link to="/services" onClick={closeMobile}>
+    Services
+  </Link>
+
+  <Link to="/team" onClick={closeMobile}>
+    Team
+  </Link>
+
+  <Link to="/testimonials" onClick={closeMobile}>
+    Testimonials
+  </Link>
+
+  <Link to="/inquiry" onClick={closeMobile}>
+    Contact
+  </Link>
+
+  <Link to="/apply" onClick={closeMobile}>
+    Apply
+  </Link>
+
+</div>
         )}
       </div>
     </nav>

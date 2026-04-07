@@ -17,6 +17,54 @@ export interface ProjectRecord {
   created_at: string;
 }
 
+export interface ClientInquiryPayload {
+  name: string;
+  email: string;
+  phone?: string;
+  projectType?: string;
+  message?: string;
+}
+
+export interface CareerInquiryPayload {
+  name: string;
+  email: string;
+  gender?: string;
+  age?: number;
+  dob?: string;
+  state?: string;
+  skills?: string[];
+}
+
+export interface ClientInquiryRecord {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  projectType?: string;
+  message?: string;
+  createdAt: string;
+}
+
+export interface CareerInquiryRecord {
+  _id: string;
+  name: string;
+  email: string;
+  gender?: string;
+  age?: number;
+  dob?: string;
+  state?: string;
+  skills?: string[];
+  createdAt: string;
+}
+
+export interface SendEmailPayload {
+  architectEmail: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
 interface LoginResponse {
   token: string;
   admin: {
@@ -48,7 +96,9 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     const isJson = contentType.includes('application/json');
     const body = isJson ? await response.json() : await response.text();
     const message = typeof body === 'object' && body && 'message' in body ? String(body.message) : String(body || 'Request failed');
-    throw new Error(message);
+    const detail = typeof body === 'object' && body && 'error' in body ? String(body.error || '') : '';
+    const formattedMessage = detail && detail !== message ? `${message}: ${detail}` : message;
+    throw new Error(formattedMessage);
   }
 
   if (response.status === 204) {
@@ -107,5 +157,43 @@ export function uploadProjectImage(file: File, token: string): Promise<{ image_u
     method: 'POST',
     body: data,
     token,
+  });
+}
+
+export function createClientInquiry(payload: ClientInquiryPayload): Promise<{ _id: string }> {
+  return request<{ _id: string }>('/client-inquiry', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function createCareerInquiry(payload: CareerInquiryPayload): Promise<{ _id: string }> {
+  return request<{ _id: string }>('/career-inquiry', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function fetchClientInquiries(): Promise<ClientInquiryRecord[]> {
+  return request<ClientInquiryRecord[]>('/client-inquiry');
+}
+
+export function fetchCareerInquiries(): Promise<CareerInquiryRecord[]> {
+  return request<CareerInquiryRecord[]>('/career-inquiry');
+}
+
+export function sendEmailInquiry(payload: SendEmailPayload): Promise<{ message: string }> {
+  return request<{ message: string }>('/send-email', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
   });
 }

@@ -1,13 +1,28 @@
-import { useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useEffect, type CSSProperties } from 'react';
 import { Footer } from '../components/Footer';
 import { Navigation } from '../components/Navigation';
 
-const profiles = [
+const santoshImage = new URL('../assets/Santosh Kapadnekar.jpeg', import.meta.url).href;
+const darshanaImage = new URL('../assets/Darshana Kapadnekar.jpeg', import.meta.url).href;
+
+type Profile = {
+  name: string;
+  designation: string;
+  qualification: string;
+  image: string;
+  imageFit: CSSProperties['objectFit'];
+  bio: string;
+  expertise: string[];
+};
+
+const profiles: Profile[] = [
   {
     name: 'Santosh Kapadnekar',
     designation: 'Architect',
     qualification: 'M.Arch, RIBA, LEED AP',
-    image: 'https://images.unsplash.com/photo-1667996113308-b8fa553d4ff3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBhcmNoaXRlY3QlMjBtYW4lMjBwb3J0cmFpdHxlbnwxfHx8fDE3NzEzNDUxODZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    image: santoshImage,
+    imageFit: 'contain',
     bio: 'With over 15 years of experience in sustainable architecture, Jonathan brings a unique vision that merges environmental consciousness with timeless design. His approach emphasizes the relationship between built environments and natural landscapes, creating structures that exist in harmony with their surroundings. Jonathan\'s work has been recognized internationally, with projects spanning residential, commercial, and institutional sectors.',
     expertise: [
       'Sustainable Architecture',
@@ -21,7 +36,8 @@ const profiles = [
     name: 'Darshana Kapadnekar',
     designation: 'Interior Designer',
     qualification: 'BFA Interior Design, NCIDQ Certified',
-    image: 'https://images.unsplash.com/photo-1685002238434-62022421d250?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbnRlcmlvciUyMGRlc2lnbmVyJTIwcHJvZmVzc2lvbmFsJTIwd29tYW58ZW58MXx8fHwxNzcxMzQ1MTgzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    image: darshanaImage,
+    imageFit: 'contain',
     bio: 'Elena\'s design philosophy centers on creating spaces that tell stories and evoke emotion. With a background in fine arts and a keen eye for detail, she transforms interiors into experiences. Her minimalist aesthetic is characterized by careful material selection, subtle textures, and masterful use of light and shadow. Elena\'s portfolio includes luxury residences, boutique hotels, and high-end commercial spaces.',
     expertise: [
       'Residential Interiors',
@@ -39,7 +55,7 @@ export default function ProfilePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <motion.div className="min-h-screen bg-white" initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} >
       <Navigation />
       
       {/* Hero Section */}
@@ -64,11 +80,12 @@ export default function ProfilePage() {
             <div key={index}>
               <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
                 {/* Photo */}
-                <div className="relative h-[600px]">
+                <div className="relative h-[580px]">
                   <img 
                     src={profile.image}
                     alt={profile.name}
-                    className="w-full h-full object-cover grayscale"
+                    className="w-full h-full grayscale"
+                    style={{ objectFit: profile.imageFit, objectPosition: 'center' }}
                   />
                 </div>
 
@@ -154,6 +171,6 @@ export default function ProfilePage() {
       </section>
 
       <Footer />
-    </div>
+    </motion.div>
   );
 }

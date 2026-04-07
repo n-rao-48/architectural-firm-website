@@ -7,7 +7,7 @@ export default function AdminLoginPage() {
   const { isAuthenticated, login, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation() as { state?: { from?: string } };
-  const [email, setEmail] = useState('admin@bhoomiconstruction.com');
+  const [email, setEmail] = useState('admin@kapadnekardesignconsultancy.com');
   const [password, setPassword] = useState('admin123');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,7 +86,7 @@ export default function AdminLoginPage() {
 
           {!error && (
             <p className="text-[#2B2B2B]/60" style={{ fontSize: '0.8rem', fontWeight: 400 }}>
-              Demo: admin@bhoomiconstruction.com / admin123
+              Demo: admin@kapadnekardesignconsultancy.com / admin123
             </p>
           )}
 

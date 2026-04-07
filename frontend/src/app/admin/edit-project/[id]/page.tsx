@@ -58,7 +58,7 @@ export default function EditProjectPage() {
 
   const heading = useMemo(() => `Edit Project #${id || ''}`, [id]);
 
-  const handleSubmit = async (values: ProjectFormValues, imageFile: File | null) => {
+  const handleSubmit = async (values: ProjectFormValues, imageFiles: File[]) => {
     if (!token) {
       throw new Error('Unauthorized. Please login again.');
     }
@@ -77,7 +77,9 @@ export default function EditProjectPage() {
     data.append('area', values.area);
     data.append('project_year', values.projectYear);
     data.append('description', values.description);
-    if (imageFile) data.append('image', imageFile);
+    for (const file of imageFiles) {
+      data.append('images', file);
+    }
 
     setSaving(true);
     try {

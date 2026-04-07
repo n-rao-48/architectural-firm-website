@@ -1,16 +1,21 @@
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
 
+const santoshImage = new URL('../../assets/Santosh Kapadnekar.jpeg', import.meta.url).href;
+const darshanaImage = new URL('../../assets/Darshana Kapadnekar.jpeg', import.meta.url).href;
+
 const team = [
   {
     name: 'Santosh Kapadnekar',
     role: 'Architect',
-    image: 'https://images.unsplash.com/photo-1667996113308-b8fa553d4ff3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBhcmNoaXRlY3QlMjBtYW4lMjBwb3J0cmFpdHxlbnwxfHx8fDE3NzEzNDUxODZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+    image: santoshImage,
+    objectPosition: '50% 20%'
   },
   {
     name: 'Darshana Kapadnekar',
     role: 'Interior Designer',
-    image: 'https://images.unsplash.com/photo-1685002238434-62022421d250?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbnRlcmlvciUyMGRlc2lnbmVyJTIwcHJvZmVzc2lvbmFsJTIwd29tYW58ZW58MXx8fHwxNzcxMzQ1MTgzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+    image: darshanaImage,
+    objectPosition: '50% 25%'
   }
 ];
 
@@ -34,13 +39,14 @@ export function TeamSection() {
         {/* Team Grid */}
         <div className="grid md:grid-cols-2 gap-12 lg:gap-16 max-w-4xl mx-auto mb-16">
           {team.map((member, index) => (
-            <div key={index} className="group text-center">
+            <div key={index} className="group text-center flex flex-col items-center">
               {/* Portrait */}
-              <div className="mb-8 relative overflow-hidden mx-auto w-64 h-64">
+              <div className="mb-8 relative overflow-hidden w-64 aspect-[4/5]">
                 <img 
                   src={member.image}
                   alt={member.name}
                   className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:scale-105"
+                  style={{ objectPosition: member.objectPosition }}
                 />
               </div>
 
