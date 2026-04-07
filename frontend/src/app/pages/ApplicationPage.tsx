@@ -1,8 +1,12 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { sendCareerInquiry } from '../../api/api.js';
 import { Footer } from '../components/Footer';
 import { Navigation } from '../components/Navigation';
-import { createCareerInquiry } from '../lib/api';
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
 export default function ApplicationPage() {
   const [formData, setFormData] = useState({
@@ -22,6 +26,24 @@ export default function ApplicationPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (
+      !formData.name.trim() ||
+      !formData.email.trim() ||
+      !formData.gender.trim() ||
+      !formData.age.trim() ||
+      !formData.dob.trim() ||
+      !formData.state.trim() ||
+      !formData.skills.trim()
+    ) {
+      setErrorMessage('Please fill in all required fields before submitting.');
+      return;
+    }
+
+    if (!isValidEmail(formData.email.trim())) {
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
+
     setSubmitting(true);
     setSuccessMessage('');
     setErrorMessage('');
@@ -32,13 +54,13 @@ export default function ApplicationPage() {
         .map((skill) => skill.trim())
         .filter(Boolean);
 
-      await createCareerInquiry({
-        name: formData.name,
-        email: formData.email,
-        gender: formData.gender,
+      await sendCareerInquiry({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        gender: formData.gender.trim(),
         age: formData.age ? Number(formData.age) : undefined,
         dob: formData.dob || undefined,
-        state: formData.state,
+        state: formData.state.trim(),
         skills: parsedSkills,
       });
 
@@ -54,7 +76,7 @@ export default function ApplicationPage() {
         agreeToTerms: false,
       });
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Failed to submit application');
+      setErrorMessage(error instanceof Error ? error.message : 'Unable to submit application right now. Please try again.');
     } finally {
       setSubmitting(false);
     }

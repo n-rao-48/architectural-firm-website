@@ -1,6 +1,11 @@
 const viteEnv = (import.meta as unknown as { env?: Record<string, string | undefined> }).env;
 
-export const API_BASE_URL = viteEnv?.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const rawApiBaseUrl = (viteEnv?.VITE_API_BASE_URL || '').trim();
+export const API_BASE_URL = rawApiBaseUrl
+  ? rawApiBaseUrl.endsWith('/api')
+    ? rawApiBaseUrl
+    : `${rawApiBaseUrl}/api`
+  : 'https://architectural-firm-website-backend.onrender.com/api';
 
 export interface ProjectRecord {
   id?: string | number;
@@ -98,7 +103,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       },
     });
   } catch {
-    throw new Error(`Cannot connect to backend at ${API_BASE_URL}. Make sure the API server is running on port 5000.`);
+    throw new Error(`Cannot connect to backend at ${API_BASE_URL}. Please check network and backend status.`);
   }
 
   if (!response.ok) {

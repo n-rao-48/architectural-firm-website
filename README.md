@@ -83,7 +83,7 @@ Backend currently runs directly through Node (`server.js`) without a separate bu
 	- Build command: `npm run build`
 	- Output directory: `dist`
 3. Add environment variable:
-	- `VITE_API_BASE_URL=https://<your-render-service>.onrender.com/api`
+	- `VITE_API_BASE_URL=https://architectural-firm-website-backend.onrender.com`
 4. Deploy frontend.
 
 ### Important Notes

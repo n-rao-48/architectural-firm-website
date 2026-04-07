@@ -1,8 +1,12 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { sendClientInquiry } from '../../api/api.js';
 import { Footer } from '../components/Footer';
 import { Navigation } from '../components/Navigation';
-import { createClientInquiry } from '../lib/api';
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
 export default function InquiryPage() {
   const [formData, setFormData] = useState({
@@ -21,6 +25,16 @@ export default function InquiryPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.fullName.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.projectType.trim() || !formData.budget.trim() || !formData.location.trim()) {
+      setErrorMessage('Please fill in all required fields before submitting.');
+      return;
+    }
+
+    if (!isValidEmail(formData.email.trim())) {
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
+
     setSubmitting(true);
     setSuccessMessage('');
     setErrorMessage('');
@@ -34,11 +48,11 @@ export default function InquiryPage() {
         .filter(Boolean)
         .join(' | ');
 
-      await createClientInquiry({
-        name: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        projectType: formData.projectType,
+      await sendClientInquiry({
+        name: formData.fullName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        projectType: formData.projectType.trim(),
         message: extraDetails,
       });
 
@@ -53,7 +67,7 @@ export default function InquiryPage() {
         message: '',
       });
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Failed to submit inquiry');
+      setErrorMessage(error instanceof Error ? error.message : 'Unable to submit inquiry right now. Please try again.');
     } finally {
       setSubmitting(false);
     }

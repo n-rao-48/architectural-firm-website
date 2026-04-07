@@ -14,7 +14,7 @@ export default function ProjectsGalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState<FilterCategory>('All');
   const [selectedStatus, setSelectedStatus] = useState<FilterStatus>('All');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const { projects } = useProjects();
+  const { projects, loading, error } = useProjects();
 
   const filteredProjects = projects.filter((project) => {
     const categoryMatch = selectedCategory === 'All' || project.category === selectedCategory;
@@ -91,9 +91,19 @@ export default function ProjectsGalleryPage() {
           <div className="max-w-[1200px] mx-auto">
             {filteredProjects.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-[#2B2B2B]/70" style={{ fontSize: '1rem', fontWeight: 400, letterSpacing: '0.01em' }}>
-                  No project added in this section yet
-                </p>
+                {loading ? (
+                  <p className="text-[#2B2B2B]/70" style={{ fontSize: '1rem', fontWeight: 400, letterSpacing: '0.01em' }}>
+                    Loading projects...
+                  </p>
+                ) : error ? (
+                  <p className="text-red-600" style={{ fontSize: '1rem', fontWeight: 400, letterSpacing: '0.01em' }}>
+                    {error}
+                  </p>
+                ) : (
+                  <p className="text-[#2B2B2B]/70" style={{ fontSize: '1rem', fontWeight: 400, letterSpacing: '0.01em' }}>
+                    No project added in this section yet
+                  </p>
+                )}
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

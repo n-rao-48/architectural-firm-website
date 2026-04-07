@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
+import { getProjects } from '../../api/api.js';
 import { projects as fallbackProjects, type Project } from '../data/projectsData';
-import { fetchProjects } from './api';
+import type { ProjectRecord } from './api';
 import { mapApiProjectToUi } from './projectMapper';
 
 function buildProjectFingerprint(project: Project): string {
@@ -33,7 +34,7 @@ export function useProjects() {
       setLoading(true);
       setError(null);
       try {
-        const records = await fetchProjects();
+        const records = (await getProjects()) as ProjectRecord[];
         if (isMounted) {
           if (records.length === 0) {
             setProjects(fallbackProjects);
