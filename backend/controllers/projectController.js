@@ -1,10 +1,10 @@
-import cloudinary from '../config/cloudinary.js';
+import cloudinary, { assertCloudinaryConfigured } from '../config/cloudinary.js';
 import {
-  createProject,
-  deleteProject,
-  getAllProjects,
-  getProjectById,
-  updateProject,
+    createProject,
+    deleteProject,
+    getAllProjects,
+    getProjectById,
+    updateProject,
 } from '../models/projectModel.js';
 
 
@@ -13,6 +13,8 @@ import {
 // =========================
 function uploadToCloudinary(fileBuffer, folder) {
   return new Promise((resolve, reject) => {
+    assertCloudinaryConfigured();
+
     const stream = cloudinary.uploader.upload_stream(
       {
         folder,

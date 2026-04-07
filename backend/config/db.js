@@ -2,19 +2,49 @@ import mongoose from 'mongoose';
 
 const client = process.env.DATABASE_CLIENT || 'mongodb';
 
-async function connectDB() {
-  const mongoUri =
+function getMongoUri() {
+  return (
     process.env.MONGO_URI ||
     process.env.MONGODB_URI ||
     process.env.DATABASE_URL ||
-    'mongodb://127.0.0.1:27017/architecture_firm';
+    ''
+  ).trim();
+}
+
+function assertValidMongoUri(mongoUri) {
+  if (!mongoUri) {
+    throw new Error(
+      'Missing MongoDB URI. Set one of: MONGO_URI, MONGODB_URI, DATABASE_URL',
+    );
+  }
+
+  if (!mongoUri.startsWith('mongodb://') && !mongoUri.startsWith('mongodb+srv://')) {
+    throw new Error('MongoDB URI must start with mongodb:// or mongodb+srv://');
+  }
+
+  if (mongoUri.includes('mailto:') || mongoUri.includes('%[')) {
+    throw new Error(
+      'MongoDB URI appears malformed (possibly copied from markdown/email format). Use a plain URI string.',
+    );
+  }
+}
+
+async function connectDB() {
+  const mongoUri = getMongoUri();
 
   try {
-    await mongoose.connect(mongoUri);
-    console.log('MongoDB Connected');
+    assertValidMongoUri(mongoUri);
+
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 15000,
+      maxPoolSize: 10,
+    });
+
+    console.log('MongoDB connected successfully');
   } catch (error) {
-    console.error('MongoDB connection failed:', error.message);
-    process.exit(1);
+    console.error('MongoDB connection failed');
+    console.error('Reason:', error?.message || error);
+    throw error;
   }
 }
 
