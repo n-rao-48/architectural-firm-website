@@ -91,6 +91,17 @@ export function validateEnvironment() {
     warnings.push('Admin credentials are not explicitly configured. Set ADMIN_PASSWORD or ADMIN_PASSWORD_HASH.');
   }
 
+  const hasConfiguredCorsOrigin =
+    isNonEmpty(process.env.CLIENT_ORIGIN) ||
+    isNonEmpty(process.env.CLIENT_ORIGINS) ||
+    isNonEmpty(process.env.DEPLOYED_CLIENT_ORIGIN);
+
+  if ((process.env.NODE_ENV || '').toLowerCase() === 'production' && !hasConfiguredCorsOrigin) {
+    warnings.push(
+      'No CORS origin env configured for production. Set CLIENT_ORIGIN, CLIENT_ORIGINS, or DEPLOYED_CLIENT_ORIGIN.'
+    );
+  }
+
   return {
     ok: errors.length === 0,
     errors,
@@ -100,6 +111,7 @@ export function validateEnvironment() {
       hasJwtSecret: isNonEmpty(process.env.JWT_SECRET),
       hasCloudinary: missingCloudinary.length === 0,
       hasSmtp: missingSmtp.length === 0,
+      hasCorsOrigin: hasConfiguredCorsOrigin,
     },
   };
 }
@@ -133,6 +145,9 @@ export function getStartupConfigStatus() {
       },
       smtp: {
         configured: report.details.hasSmtp,
+      },
+      corsOrigin: {
+        configured: report.details.hasCorsOrigin,
       },
     },
   };

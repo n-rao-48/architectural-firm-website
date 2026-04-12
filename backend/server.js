@@ -64,8 +64,13 @@ process.on('unhandledRejection', (reason) => {
 // =========================
 // CORS CONFIG (PRODUCTION READY)
 // =========================
-const configuredOrigins = (process.env.CLIENT_ORIGIN || '')
-  .split(',')
+const configuredOrigins = [
+  process.env.CLIENT_ORIGIN,
+  process.env.CLIENT_ORIGINS,
+  process.env.DEPLOYED_CLIENT_ORIGIN,
+]
+  .filter(Boolean)
+  .flatMap((value) => value.split(','))
   .map((origin) => origin.trim())
   .filter(Boolean);
 
@@ -95,6 +100,9 @@ app.use(
       return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 204,
   })
 );
 
