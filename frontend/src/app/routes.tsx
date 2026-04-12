@@ -1,4 +1,4 @@
-import { Navigate, createBrowserRouter } from 'react-router';
+import { Navigate, createBrowserRouter } from 'react-router-dom';
 import AddProjectPage from './admin/add-project/page';
 import AdminDashboardPage from './admin/dashboard/page';
 import EditProjectPage from './admin/edit-project/[id]/page';
@@ -7,6 +7,7 @@ import AdminLayout from './admin/layout';
 import AdminLoginPage from './admin/login/page';
 import ManageProjectsPage from './admin/manage-projects/page';
 import UploadsPage from './admin/uploads/page';
+import { AboutSection as About } from "./components/home/AboutSection";
 import AhilyanagarProjects from "./pages/AhilyanagarProjects";
 import ApplicationPage from "./pages/ApplicationPage";
 import Home from "./pages/Home";
@@ -28,6 +29,10 @@ export const router = createBrowserRouter([
   {
     path: "/",
     Component: Home,
+  },
+  {
+    path: "/about",
+    Component: About,
   },
   {
     path: "/inquiry",
